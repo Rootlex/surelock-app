@@ -18,7 +18,7 @@ const PerProductCard = ({ product }: Props) => {
     return (
         <div
             onClick={() => router.push(`/products/${id}`)}
-            className="flex bg-white items-center gap-x-2 rounded-md overflow-hidden shadow-md p-2 py-4 mb-4 flex-col"
+            className="flex bg-white items-center gap-x-2 rounded-md overflow-hidden shadow-md p-2 py-4 mb-4 flex-col cursor-pointer hover:bg-gray-50 transition-all"
         >
             <div className="relative w-40 h-[140px]">
                 <Image

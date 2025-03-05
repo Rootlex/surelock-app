@@ -20,6 +20,7 @@ const config: Config = {
                 sm: "calc(var(--radius) - 4px)",
             },
             colors: {
+                "red-color": "#D92D20",
                 "supporting-text": "#8E94A2",
                 "header-text": "#0E121A",
                 background: "hsl(var(--background))",

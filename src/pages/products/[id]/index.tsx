@@ -1,9 +1,10 @@
+import ErrorSection from "@/components/global/error-section";
+import Warning from "@/components/global/warning";
 import ProductDetailLoader from "@/components/loaders/product-detail-loader";
 import { Button } from "@/components/ui/button";
 import {
     DropdownMenu,
     DropdownMenuContent,
-    DropdownMenuItem,
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
@@ -12,7 +13,7 @@ import { formatCurrency, formatTimeFn } from "@/lib/helpers";
 import { ProductType } from "@/lib/types";
 import Image from "next/image";
 import { useRouter } from "next/router";
-import React, { useEffect } from "react";
+import React, { useCallback, useEffect } from "react";
 import toast from "react-hot-toast";
 
 const TextDetail = ({ label, value }: { label: string; value: string }) => {
@@ -34,25 +35,46 @@ const ProductPage = () => {
     const [loading, setLoading] = React.useState(true);
     const [product, setProduct] = React.useState<ProductType | null>(null);
 
+    const handleDelete = () => {
+        fetch(`${DEFAULT_URL}/${id}`, {
+            method: "DELETE",
+        })
+            .then(res => res.text())
+            .then(data => {
+                console.log("Data", data);
+                toast.success("Product deleted successfully");
+                router.push("/");
+            })
+            .catch(err => {
+                console.error(err);
+                toast.error("Failed to delete product");
+                router.push("/");
+            })
+            .finally(() => setLoading(false));
+    };
+
+    const getProduct = useCallback(() => {
+        setLoading(true);
+        fetch(`${DEFAULT_URL}?id=${id}`)
+            .then(res => res.json())
+            .then((data: ProductType[]) => {
+                setLoading(false);
+                if (!data || !data.length)
+                    return toast.error("Product not found");
+                console.log("New Data", data);
+                setProduct(data[0]);
+            })
+            .catch(err => console.error(err));
+    }, [id]);
     useEffect(() => {
         if (id) {
-            if (product) return;
-            fetch(`${DEFAULT_URL}?id=${id}`)
-                .then(res => res.json())
-                .then((data: ProductType[]) => {
-                    setLoading(false);
-                    if (!data || !data.length)
-                        return toast.error("Product not found");
-                    console.log("Data", data);
-                    setProduct(data[0]);
-                })
-                .catch(err => console.error(err));
+            getProduct();
         }
-    }, [id, product]);
+    }, [id, getProduct]);
 
     if (loading) return <ProductDetailLoader />;
 
-    if (!product) return <div>Product not found</div>;
+    if (!product) return <ErrorSection text="Product not Found" />;
 
     return (
         <div className="p-4 lg:p-10 ">
@@ -63,14 +85,39 @@ const ProductPage = () => {
                         <DropdownMenuTrigger>
                             <Button variant="outline">Actions</Button>
                         </DropdownMenuTrigger>
-                        <DropdownMenuContent>
-                            <DropdownMenuItem>
-                                <Button variant="ghost">Update</Button>
-                            </DropdownMenuItem>
+                        <DropdownMenuContent className="flex flex-col items-center">
+                            <Button
+                                variant="ghost"
+                                onClick={() =>
+                                    router.push(
+                                        `/products/update/${product.id}`
+                                    )
+                                }
+                            >
+                                Update
+                            </Button>
                             <DropdownMenuSeparator />
-                            <DropdownMenuItem>
-                                <Button variant="ghost">Delete</Button>
-                            </DropdownMenuItem>
+                            <Warning
+                                TriggerComp={() => {
+                                    return (
+                                        <div className="flex justify-center  w-full flex-1">
+                                            {product.is_active ? (
+                                                <Button variant="ghost">
+                                                    Delete
+                                                </Button>
+                                            ) : (
+                                                <Button variant="ghost">
+                                                    Activate
+                                                </Button>
+                                            )}
+                                        </div>
+                                    );
+                                }}
+                                onConfirm={() => {
+                                    setLoading(true);
+                                    handleDelete();
+                                }}
+                            />
                         </DropdownMenuContent>
                     </DropdownMenu>
                 </div>
