@@ -8,7 +8,7 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { DEFAULT_URL } from "@/lib/constants";
+import { SERVER_URL } from "@/lib/constants";
 import { formatCurrency, formatTimeFn } from "@/lib/helpers";
 import { ProductType } from "@/lib/types";
 import Image from "next/image";
@@ -36,8 +36,14 @@ const ProductPage = () => {
     const [product, setProduct] = React.useState<ProductType | null>(null);
 
     const handleDelete = () => {
-        fetch(`${DEFAULT_URL}/${id}`, {
+        if (!product) return toast.error("Product not found");
+        fetch(`${SERVER_URL}`, {
             method: "DELETE",
+            body: JSON.stringify(product.id.toString()),
+            headers: {
+                Authorization:
+                    "Beearer " + process.env.NEXT_PUBLIC_API_KEY || "",
+            },
         })
             .then(res => res.text())
             .then(data => {
@@ -55,7 +61,12 @@ const ProductPage = () => {
 
     const getProduct = useCallback(() => {
         setLoading(true);
-        fetch(`${DEFAULT_URL}?id=${id}`)
+        fetch(`${SERVER_URL}?id=${id}`, {
+            headers: {
+                Authorization:
+                    "Beearer " + process.env.NEXT_PUBLIC_API_KEY || "",
+            },
+        })
             .then(res => res.json())
             .then((data: ProductType[]) => {
                 setLoading(false);
@@ -77,7 +88,7 @@ const ProductPage = () => {
     if (!product) return <ErrorSection text="Product not Found" />;
 
     return (
-        <div className="p-4 lg:p-10 ">
+        <div className="p-4 md:p-10 ">
             <div className="flex items-center justify-between mb-4">
                 <h1 className="font-semibold text-header-text">Product</h1>
                 <div>
@@ -127,7 +138,7 @@ const ProductPage = () => {
                 </div>
             </div>
 
-            <div className="py-4 flex flex-col lg:flex-row lg:gap-x-10 lg:w-1/2 mx-auto">
+            <div className="py-4 flex flex-col md:flex-row md:gap-x-10 md:w-1/2 mx-auto">
                 <div>
                     <h1 className="font-semibold text-header-text mb-4">
                         {product.name}

@@ -14,7 +14,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { ProductType } from "@/lib/types";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
-import { DEFAULT_URL } from "@/lib/constants";
+import { SERVER_URL } from "@/lib/constants";
 import { useRouter } from "next/router";
 import {
     Select,
@@ -57,12 +57,15 @@ const UpdateProductForm = ({ product }: Props) => {
 
         setLoading(true);
         try {
-            const req = await fetch(`${DEFAULT_URL}/${product.id}`, {
+            const req = await fetch(`${SERVER_URL}/products`, {
                 method: "PATCH",
                 headers: {
                     "Content-Type": "application/json",
+                    Authorization:
+                        "Beearer " + process.env.NEXT_PUBLIC_API_KEY || "",
                 },
                 body: JSON.stringify({
+                    id: product.id,
                     name: values.name,
                     price: values.price,
                     quantity: parseInt(values.quantity),
@@ -72,12 +75,10 @@ const UpdateProductForm = ({ product }: Props) => {
             });
 
             const res = await req.json();
-            console.log("Response:", res);
             if (!req.ok) throw new Error(res.error);
-            console.log("Response:", res);
             toast.success("Product updated successfully");
             form.reset();
-            router.push(`/products/${res.data.id}`);
+            router.push(`/products/${product.id}`);
         } catch (err: any) {
             console.error("Error:", err.message);
             toast.error(err.message || "Failed to create product");

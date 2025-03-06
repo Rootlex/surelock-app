@@ -1,7 +1,7 @@
 import ErrorSection from "@/components/global/error-section";
 import UpdateProductForm from "@/components/global/update-product-form";
 import ProductDetailLoader from "@/components/loaders/product-detail-loader";
-import { DEFAULT_URL } from "@/lib/constants";
+import { SERVER_URL } from "@/lib/constants";
 import { ProductType } from "@/lib/types";
 import { useRouter } from "next/router";
 import React, { useCallback, useEffect } from "react";
@@ -15,7 +15,12 @@ const UpdateProduct = () => {
 
     const getProduct = useCallback(() => {
         setLoading(true);
-        fetch(`${DEFAULT_URL}?id=${id}`)
+        fetch(`${SERVER_URL}/products?id=${id}`, {
+            headers: {
+                Authorization:
+                    "Beearer " + process.env.NEXT_PUBLIC_API_KEY || "",
+            },
+        })
             .then(res => res.json())
             .then((data: ProductType[]) => {
                 setLoading(false);

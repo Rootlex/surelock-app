@@ -7,6 +7,12 @@ const nextConfig = {
                 hostname: "ng.jumia.is",
                 protocol: "https",
             },
+            {
+                hostname: "cdn.shopify.com",
+            },
+            {
+                hostname: "m.media-amazon.com",
+            },
         ],
     },
 };
