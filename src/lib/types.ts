@@ -9,4 +9,4 @@ export type ProductType = {
     is_active: true;
 };
 
-export type ProductStatusType = "all" | "active" | "inactive";
+export type ProductStatusType = "active" | "inactive";
